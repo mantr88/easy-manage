@@ -1,5 +1,6 @@
 const { Router } = require("express");
-const { register, login } = require("../../controllers/users");
+const { register, login, updateRole } = require("../../controllers/users");
+const authenticate = require("../../middlewares/authenticate");
 
 const router = Router();
 
@@ -9,5 +10,6 @@ router.get("/", (req, res) => {
 
 router.post("/register", register);
 router.post("/login", login);
+router.put("/update-role", authenticate, updateRole);
 
 module.exports = router;
