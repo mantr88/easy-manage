@@ -1,0 +1,31 @@
+{
+  "name": "easy-manage",
+  "version": "1.0.0",
+  "description": "System for managing projects",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development node --watch index.js",
+    "lint": "eslint **/*.js",
+    "prod": "NODE_ENV=production node index.js"
+  },
+  "author": "Anton Petrenko",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "jsonwebtoken": "^9.0.2",
+    "mariadb": "^3.2.3",
+    "morgan": "^1.10.0",
+    "sequelize": "^6.37.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1"
+  }
+}
