@@ -15,7 +15,7 @@ const createProject = ctrlWrapper(async (req, res) => {
     throw HttpError(500, "Failed to create a project");
   }
   return res
-    .status(200)
+    .status(201)
     .json({ message: "Project created successfully", project });
 });
 
