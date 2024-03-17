@@ -37,7 +37,7 @@ const updateProject = ctrlWrapper(async (req, res) => {
     throw HttpError(404, "Project not found for update");
   }
 
-  res.json({ message: "Project updated successfully" });
+  res.status(200).json({ message: "Project updated successfully" });
 });
 
 module.exports = updateProject;
