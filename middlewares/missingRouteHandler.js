@@ -1,4 +1,4 @@
-const missingRouteHandler = (req, res) => {
+const missingRouteHandler = (_, res) => {
   res.status(404).json({ message: "Not Found" });
 };
 

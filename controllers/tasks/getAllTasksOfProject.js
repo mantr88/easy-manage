@@ -13,10 +13,10 @@ const getAllTasksOfProject = ctrlWrapper(async (req, res) => {
     where: { projectId },
     include: [
       {
-        model: User, // Assuming you have a User model defined
-        as: "users", // The alias used in the association
-        through: { attributes: [] }, // Exclude the through table attributes from the result
-        attributes: ["id"], // Only include the 'id' field of the 'users'
+        model: User,
+        as: "users",
+        through: { attributes: [] },
+        attributes: ["id"],
       },
     ],
   });
