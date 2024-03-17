@@ -6,14 +6,14 @@ const {
   updateProject,
   deleteProject,
 } = require("../../controllers/projects");
-const authenticate = require("../../middlewares/authenticate");
+const { adminManagerAuth } = require("../../middlewares");
 
 const router = Router();
 
-router.post("/create", authenticate, createProject);
-router.get("/", authenticate, getProjects);
-router.get("/all", authenticate, getAllProjects);
-router.patch("/:id", authenticate, updateProject);
-router.delete("/:id", authenticate, deleteProject);
+router.post("/create", adminManagerAuth, createProject);
+router.get("/", adminManagerAuth, getProjects);
+router.get("/all", adminManagerAuth, getAllProjects);
+router.patch("/:id", adminManagerAuth, updateProject);
+router.delete("/:id", adminManagerAuth, deleteProject);
 
 module.exports = router;
