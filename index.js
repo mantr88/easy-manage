@@ -36,4 +36,8 @@ app.listen(3022, (error) => {
   console.log("Server started on port 3022");
 });
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "App is leave" });
+});
+
 start();
