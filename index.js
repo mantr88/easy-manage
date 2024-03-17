@@ -5,7 +5,7 @@ require("dotenv").config();
 const sequelize = require("./db");
 const routes = require("./routes/api/index");
 const { missingRouteHandler, globalErrorHandler } = require("./middlewares");
-
+const PORT = process.env.PORT || 8080;
 const app = express();
 
 const formatLogger = app.get("env") === "development" ? "dev" : "short";
@@ -29,15 +29,11 @@ const start = async () => {
   }
 };
 
-app.listen(3022, (error) => {
+app.listen(PORT, (error) => {
   if (error) {
     console.log(error);
   }
   console.log("Server started on port 3022");
-});
-
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "App is leave" });
 });
 
 start();

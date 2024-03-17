@@ -8,5 +8,11 @@ const router = Router();
 router.use("/users", usersRouter);
 router.use("/projects", projectsRouter);
 router.use("/tasks", tasksRouter);
+router.use(
+  "/",
+  router.get("/", (req, res) => {
+    res.status(200).json({ message: "App is leave" });
+  })
+);
 
 module.exports = router;
