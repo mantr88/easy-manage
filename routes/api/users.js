@@ -10,6 +10,6 @@ router.get("/", (req, res) => {
 
 router.post("/register", register);
 router.post("/login", login);
-router.put("/update-role", authenticate, updateRole);
+router.patch("/update-role", authenticate, updateRole);
 
 module.exports = router;
