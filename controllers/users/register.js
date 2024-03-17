@@ -3,12 +3,11 @@ const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const User = require("../../models/users");
+const User = require("../../models/user");
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-    console.log("body", { name, email, password });
+    const { email, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
 

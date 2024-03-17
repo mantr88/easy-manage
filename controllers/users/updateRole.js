@@ -1,5 +1,5 @@
 const { ctrlWrapper } = require("../../helpers");
-const User = require("../../models/users");
+const User = require("../../models/user");
 
 const ADMIN_KEY = process.env.ADMIN_KEY;
 
@@ -22,8 +22,7 @@ const updateRole = ctrlWrapper(async (req, res, next) => {
             .status(400)
             .json({ message: "Do not enough access rights" });
         }
-        break;
-      case "MANAGER":
+      case "MANAGER": {
         const userManager = await User.findOne({ where: { id } });
         if (!userManager) res.status(404).json("User not found");
         userManager.role = "MANAGER";
@@ -31,8 +30,8 @@ const updateRole = ctrlWrapper(async (req, res, next) => {
         return res.status(201).json({
           message: `Role of user ${userManager.name} update successful. Now is ${userManager.role}`,
         });
-        break;
-      case "EXECUTANT":
+      }
+      case "EXECUTANT": {
         const userExecutant = await User.findOne({ where: { id } });
         if (!userExecutant) res.status(404).json("User not found");
         userExecutant.role = "EXECUTANT";
@@ -40,14 +39,11 @@ const updateRole = ctrlWrapper(async (req, res, next) => {
         return res.status(201).json({
           message: `Role of user ${userExecutant.name} update successful. Now is ${userExecutant.role}`,
         });
-        break;
+      }
       default:
         res.status(400).json({ message: "Role or Id not present" });
         break;
     }
-    console.log("MANAGER: ", MANAGER);
-    console.log("MANAGER: ", MANAGER);
-    console.log("MANAGER: ", MANAGER);
     next();
   } else {
     res.status(400).json({ message: "Role or Id not present" });
