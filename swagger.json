@@ -1,0 +1,1677 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.0.1",
+    "title": "Project of Anton Petrenko",
+    "description": "Цей API створено для керування проєктами за принципами REST. Реалізує авторизацію та аутентифікацію користувача. MariaDB використовується як база даних. Авторизація реалізована за допомогою присвоювання ролей зареєстрованому користувачу.Є три типа ролей: ADMIN, MANAGER, EXECUTANT"
+  },
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "servers": [
+    {
+      "url": "http://localhost:3022/api"
+    },
+    { "url": "https://easy-manage-mtm3.onrender.com/api" }
+  ],
+  "tags": [
+    { "name": "Users", "description": "Users endpoints" },
+    { "name": "Tasks", "description": "Tasks endpoints" },
+    { "name": "Projects", "description": "Projects endpoints" }
+  ],
+  "paths": {
+    "/users/register": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "User registration",
+        "parameters": [],
+        "requestBody": {
+          "description": "Registration's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegistrationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "type": "object",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "New user successfully created!"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Provided email or name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to register user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Logs user into the system",
+        "parameters": [],
+        "requestBody": {
+          "description": "Object for login user in system",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity"
+          },
+          "409": {
+            "description": "Provided email already exists"
+          },
+          "500": {
+            "description": "Failed to log in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/logout": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Logout user into the system",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "401": {
+            "description": "Unauthorised",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to log out user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/update-role": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Change role of user",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "description": "Change role object. Code field needs only for set ADMIN",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangeRoleRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangeRoleUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to log in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/tasks": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get all user's tasks",
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllTasksResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found tasks for the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/create": {
+      "post": {
+        "tags": ["Tasks"],
+        "summary": "Add task",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "description": "Object for add task",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddTaskRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AddTaskResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create a task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/all/{projectId}": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Update task",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "ID of project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllTasksOfProjectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found tasks for the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "patch": {
+        "tags": ["Tasks"],
+        "summary": "Update category of task",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of task that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "description": "Object for update task",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateTaskRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateTaskResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "You are not the executor of this task ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found for update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to edit a task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Tasks"],
+        "summary": "Delete task",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of task that needs to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeleteTaskResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found for delete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to delete a task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/all": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Get all projects",
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetAllProjects" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to get projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Get projects of user",
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetAllProjects" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to get projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/create": {
+      "post": {
+        "tags": ["Projects"],
+        "summary": "Add project",
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "description": "Object for add project",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddProjectRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AddProjectResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{id}": {
+      "patch": {
+        "tags": ["Projects"],
+        "summary": "Update of project",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of project that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "description": "Object for update project",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProjectRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateProjectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "You are not the executor of this project ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found for update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to edit a project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Projects"],
+        "summary": "Delete project",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of project that needs to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteProjectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to delete a project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "User's id",
+            "example": "1"
+          },
+          "name": {
+            "type": "string",
+            "description": "User's name",
+            "example": "Antony"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "example": "qwerty"
+          },
+          "role": {
+            "type": "enum",
+            "description": "Role of user",
+            "example": "'ADMIN' or 'MANAGER' or 'EXECUTANT'"
+          }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Task's id",
+            "example": "1"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of a task",
+            "example": "New Task"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of a task",
+            "example": "Description of new task"
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Day on which to schedule a task. In 'YYYY-MM-DD HH:MM:SS' format.",
+            "example": "2024-03-18 15:00:00"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority of a task. Possible values: `\"low\", \"medium\", \"high\"`",
+            "enum": ["low", "medium", "high"],
+            "example": "high"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["to-do", "in-progress", "postponed", "done"],
+            "description": "The category of a task. Possible values: `\"to-do\", \"in-progress\",\"postponed\", \"done\"`",
+            "example": "in-progress"
+          },
+          "projectId": {
+            "type": "number",
+            "description": "ID of the project of a task.",
+            "example": "in-progress"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Task's created time",
+            "example": "2023-08-21T20:25:17.862Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Task's updated time",
+            "example": "2023-08-21T20:25:17.862Z"
+          }
+        }
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Project's id",
+            "example": "1"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of a project",
+            "example": "New Task"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of a project",
+            "example": "Description of new project"
+          },
+          "ownerId": {
+            "type": "integer",
+            "description": "Id of creator of project",
+            "example": "1"
+          }
+        }
+      },
+      "RegistrationRequest": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "User's name",
+            "example": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "example": "qwerty123"
+          }
+        }
+      },
+      "ChangeRoleRequest": {
+        "type": "object",
+        "required": ["role"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "User's name",
+            "example": "'ADMIN' or 'MANAGER' or 'EXECUTANT'"
+          },
+          "code": {
+            "type": "string",
+            "description": "Adnin's code",
+            "example": "1111"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "example": "qwerty"
+          }
+        }
+      },
+      "LogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Logged out."
+          }
+        }
+      },
+      "RegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "New user successfully created!"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Logged in"
+          }
+        }
+      },
+      "ChangeRoleUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Role of user user.name update successful. Now is user.role"
+          }
+        }
+      },
+      "GetAllTasksOfProjectResponse": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Task" },
+            "example": [
+              {
+                "id": 1,
+                "title": "Test tasks-1",
+                "description": "test task's description 1",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:35:46.000Z",
+                "updatedAt": "2024-03-17T21:35:46.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3
+                  }
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Test tasks-2",
+                "description": "test task's description 2",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:35:57.000Z",
+                "updatedAt": "2024-03-17T21:35:57.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Test tasks-3",
+                "description": "test task's description 3",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:36:04.000Z",
+                "updatedAt": "2024-03-17T21:36:04.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3
+                  }
+                ]
+              },
+              {
+                "id": 7,
+                "title": "Run QA tests",
+                "description": "Run Quality Assurance Tests on Software Release",
+                "deadline": "2024-03-18T13:00:00.000Z",
+                "priority": "high",
+                "category": "to-do",
+                "createdAt": "2024-03-18T11:07:18.000Z",
+                "updatedAt": "2024-03-18T11:07:18.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "GetAllTasksResponse": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Task" },
+            "example": [
+              {
+                "id": 1,
+                "title": "Test tasks-1",
+                "description": "test task's description 1",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:35:46.000Z",
+                "updatedAt": "2024-03-17T21:35:46.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 1
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Test tasks-2",
+                "description": "test task's description 2",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:35:57.000Z",
+                "updatedAt": "2024-03-17T21:35:57.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 2
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Test tasks-3",
+                "description": "test task's description 3",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:36:04.000Z",
+                "updatedAt": "2024-03-17T21:36:04.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 3
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 4,
+                "title": "Test tasks-1",
+                "description": "test task's description 1",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:36:17.000Z",
+                "updatedAt": "2024-03-17T21:36:17.000Z",
+                "projectId": 2,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 5,
+                "title": "Test tasks-1",
+                "description": "test task's description 1",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T21:36:23.000Z",
+                "updatedAt": "2024-03-17T21:36:23.000Z",
+                "projectId": 3,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 5
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 6,
+                "title": "Test tasks-2",
+                "description": "test task's description 2",
+                "deadline": "2024-03-22T10:00:00.000Z",
+                "priority": "medium",
+                "category": "to-do",
+                "createdAt": "2024-03-17T22:00:09.000Z",
+                "updatedAt": "2024-03-17T22:00:09.000Z",
+                "projectId": 3,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 6
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 7,
+                "title": "Run QA tests",
+                "description": "Run Quality Assurance Tests on Software Release",
+                "deadline": "2024-03-18T13:00:00.000Z",
+                "priority": "high",
+                "category": "to-do",
+                "createdAt": "2024-03-18T11:07:18.000Z",
+                "updatedAt": "2024-03-18T11:07:18.000Z",
+                "projectId": 1,
+                "users": [
+                  {
+                    "id": 3,
+                    "executantTasks": {
+                      "userId": 3,
+                      "taskId": 7
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "AddTaskRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "deadline",
+          "priority",
+          "category",
+          "projectId"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of a task",
+            "example": "New Task"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of a task",
+            "example": "Description of new task"
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Day on which to schedule a task. In 'YYYY-MM-DD HH:MM:SS' format.",
+            "example": "2024-03-18 15:00:00"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority of a task. Possible values: `\"low\", \"medium\", \"high\"`",
+            "enum": ["low", "medium", "high"],
+            "example": "high"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["to-do", "in-progress", "postponed", "done"],
+            "description": "The category of a task. Possible values: `\"to-do\", \"in-progress\",\"postponed\", \"done\"`",
+            "example": "in-progress"
+          },
+          "projectId": {
+            "type": "number",
+            "description": "ID of the project of a task.",
+            "example": "in-progress"
+          }
+        },
+        "example": {
+          "title": "Run QA tests",
+          "description": "Run Quality Assurance Tests on Software Release",
+          "deadline": "2024-03-18 15:00:00",
+          "priority": "hight",
+          "category": "to-do",
+          "projectId": "1"
+        }
+      },
+      "AddTaskResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Task created successfully"
+          },
+          "task": {
+            "type": "object",
+            "example": {
+              "message": "Task created successfully",
+              "task": {
+                "id": 7,
+                "title": "Run QA tests",
+                "description": "Run Quality Assurance Tests on Software Release",
+                "deadline": "2024-03-18T13:00:00.000Z",
+                "priority": "high",
+                "category": "to-do",
+                "projectId": 1,
+                "updatedAt": "2024-03-18T11:07:17.898Z",
+                "createdAt": "2024-03-18T11:07:17.898Z"
+              }
+            }
+          }
+        }
+      },
+      "UpdateTaskRequest": {
+        "type": "object",
+        "required": ["category"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["to-do", "in-progress", "done"],
+            "description": "The category of a task. Possible values: `\"to-do\", \"in-progress\", \"done\"`",
+            "example": "in-progress"
+          }
+        },
+        "example": {
+          "category": "to-do"
+        }
+      },
+      "UpdateTaskResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Task category updated successfully"
+          }
+        }
+      },
+      "DeleteTaskResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Task deleted successfully"
+          }
+        }
+      },
+      "GetAllProjects": {
+        "type": "object",
+        "properties": {
+          "projects": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Project" },
+            "example": [
+              {
+                "id": 1,
+                "title": "Test project - 1",
+                "description": "Description for Test project - 1",
+                "createdAt": "2024-03-17T21:33:31.000Z",
+                "updatedAt": "2024-03-17T21:33:31.000Z",
+                "ownerId": 3
+              },
+              {
+                "id": 2,
+                "title": "Test project - 2",
+                "description": "Description for Test project - 2",
+                "createdAt": "2024-03-17T21:33:52.000Z",
+                "updatedAt": "2024-03-17T21:33:52.000Z",
+                "ownerId": 3
+              },
+              {
+                "id": 3,
+                "title": "Test project - 3",
+                "description": "Description for Test project - 3",
+                "createdAt": "2024-03-17T21:33:58.000Z",
+                "updatedAt": "2024-03-17T21:33:58.000Z",
+                "ownerId": 3
+              },
+              {
+                "id": 4,
+                "title": "Test project - 4",
+                "description": "Description for Test project - 4",
+                "createdAt": "2024-03-17T21:34:13.000Z",
+                "updatedAt": "2024-03-17T21:34:13.000Z",
+                "ownerId": 3
+              },
+              {
+                "id": 5,
+                "title": "Test project - 4",
+                "description": "Description for Test project - 4",
+                "createdAt": "2024-03-18T11:01:57.000Z",
+                "updatedAt": "2024-03-18T11:01:57.000Z",
+                "ownerId": 3
+              }
+            ]
+          },
+          "totalRewiews": { "type": "integer", "example": "10" },
+          "totalPages": { "type": "integer", "example": "2" },
+          "currentPage": { "type": "integer", "example": "1" },
+          "limit": { "type": "integer", "example": "5" }
+        }
+      },
+      "AddProjectRequest": {
+        "type": "object",
+        "required": ["title", "description"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of a project",
+            "example": "New Project"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of a project",
+            "example": "Description of new project"
+          }
+        },
+        "example": {
+          "title": "New Project",
+          "description": "Description of new project"
+        }
+      },
+      "AddProjectResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Project created successfully"
+          },
+          "project": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "description": "Project's id",
+                "example": "1"
+              },
+              "title": {
+                "type": "string",
+                "description": "Title of a project",
+                "example": "New Project"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of a project",
+                "example": "Description of new project"
+              },
+              "ownerId": {
+                "type": "integer",
+                "description": "User which created review",
+                "example": "2"
+              },
+              "createdAt": {
+                "type": "string",
+                "description": "Review's created time",
+                "example": "2023-08-21T20:25:17.862Z"
+              },
+              "updatedAt": {
+                "type": "string",
+                "description": "Review's updated time",
+                "example": "2023-08-21T20:25:17.862Z"
+              }
+            }
+          }
+        }
+      },
+      "UpdateProjectRequest": {
+        "type": "object",
+        "required": ["title", "description"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of a project",
+            "example": "Updated Project"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of a project",
+            "example": "Description of updated project"
+          }
+        },
+        "example": {
+          "title": "Updated Project",
+          "description": "Description of updated project"
+        }
+      },
+      "UpdateProjectResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Project updated successfully"
+          }
+        }
+      },
+      "DeleteProjectResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Project deleted successfully"
+          }
+        }
+      },
+      "BadRequestResponse": {
+        "type": "object",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "message": "Bad Request"
+        }
+      },
+      "NotFoundResponse": {
+        "type": "object",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "message": "Not found"
+            }
+          }
+        },
+        "example": {
+          "message": "Not found"
+        }
+      },
+      "ForbiddenResponse": {
+        "type": "object",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "message": "Forbidden"
+        }
+      },
+      "ConflictResponse": {
+        "type": "object",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "message": "Provided email or name already exists"
+        }
+      },
+      "UnauthorizedResponse": {
+        "type": "object",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "message": "Not authorized"
+        }
+      },
+      "ServerResponse": {
+        "type": "object",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "message": "Oops, it seems we`ve encountered an unexpected hiccup. Our team is already on the case to address this issue. Please bear with us while we work to restore things to normal"
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

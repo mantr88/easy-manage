@@ -49,7 +49,7 @@ const changeCategoryOfTaskOfUser = ctrlWrapper(async (req, res) => {
     throw HttpError(404, "Task not found for update");
   }
 
-  res.status(200).json({
+  res.status(201).json({
     message: "Task category updated successfully",
   });
 });

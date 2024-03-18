@@ -10,7 +10,7 @@ const getAllProjects = ctrlWrapper(async (req, res) => {
   const projects = await Project.findAll();
 
   if (!projects) {
-    throw HttpError(404, "Not found projects for user");
+    throw HttpError(404, "Not found projects");
   }
 
   return res.status(200).json({ projects });

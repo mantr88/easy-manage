@@ -1,5 +1,10 @@
 const { Router } = require("express");
-const { register, login, updateRole } = require("../../controllers/users");
+const {
+  register,
+  login,
+  updateRole,
+  logout,
+} = require("../../controllers/users");
 const authenticate = require("../../middlewares/authenticate");
 
 const router = Router();
@@ -11,5 +16,6 @@ router.get("/", (req, res) => {
 router.post("/register", register);
 router.post("/login", login);
 router.patch("/update-role", authenticate, updateRole);
+router.post("/logout", authenticate, logout);
 
 module.exports = router;

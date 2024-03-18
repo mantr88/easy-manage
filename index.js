@@ -4,6 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 const sequelize = require("./db");
 const routes = require("./routes/api/index");
+const swagger = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 const { missingRouteHandler, globalErrorHandler } = require("./middlewares");
 const PORT = process.env.PORT || 8080;
 const app = express();
@@ -15,6 +17,7 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.use("/api", routes);
+app.use("/api-docs", swagger.serve, swagger.setup(swaggerDocument));
 
 app.use(missingRouteHandler);
 app.use(globalErrorHandler);

@@ -15,7 +15,7 @@ const deleteTask = ctrlWrapper(async (req, res) => {
     throw HttpError(404, "Task not found for delete");
   }
 
-  res.json({ message: "Task deleted successfully" });
+  res.status(200).json({ message: "Task deleted successfully" });
 });
 
 module.exports = deleteTask;
