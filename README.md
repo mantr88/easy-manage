@@ -17,4 +17,4 @@
   <li>/api/tasks/:id - DELETE видалення задачі яку створював користувач. Права доступу є у користувачів з ролями "ADMIN", "MANAGER", який створював цей проєкт;</li>
   </ul>
   <p>При створенні проєкту були використанні наступні технології: Node.js, Express.js, JWTToken, Sequelize, MariaDB</p>
-  <a href='https://easy-manage-mtm3.onrender.com/api'>Посилання на проєкт</a>
+  <a href='https://easy-manage-mtm3.onrender.com/api-docs'>Посилання на проєкт</a>
